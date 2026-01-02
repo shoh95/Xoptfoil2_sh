@@ -91,7 +91,6 @@ Using command line arguments can be useful when a row of optimization tasks shou
 
 
 Overview of all namelists with their parameters currently available. Only a short explanation is given for each parameter. 
-See [Input Reference](input_file.md) for more details. 
 
 {: .tip }
 Copy & Paste single parameters or complete namelists from here into your input file 
@@ -236,3 +235,8 @@ Copy & Paste single parameters or complete namelists from here into your input f
 /
 ```
 {: .lh-tight }
+
+
+## Input Reference 
+
+Sorry - The reference still needs to be written.

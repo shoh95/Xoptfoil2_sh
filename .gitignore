@@ -8,6 +8,9 @@ test-cases/*
 *.xfl
 *.pdf
 
+# Code counter
+.VSCodeCounter
+
 # examples gnerated files
 *_polars
 *_designs
