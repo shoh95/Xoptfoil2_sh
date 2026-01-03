@@ -10,9 +10,9 @@
         
         "request": "launch",
         "program": "${workspaceFolder}/windows/bin/xoptfoil2.exe",
-        "args": ["-i", "flap_fixed.inp", "-o", "flap_fixed"], // Possible input args for a.out
+        "args": ["-i", "jo_test.xo2"], // Possible input args for a.out
         "stopAtEntry": false,
-        "cwd": "${workspaceFolder}/test-cases/test flap",
+        "cwd": "${workspaceFolder}/test-cases/test enno bug/",
         "environment": [],
         "externalConsole": true,
         "MIMode": "gdb",
