@@ -1,6 +1,6 @@
 ! MIT License
 ! Copyright (C) 2017-2019 Daniel Prosser
-! Copyright (c) 2022-2024 Jochen Guenzel
+! Copyright (c) 2022-2025 Jochen Guenzel
 
 module optimization
 
@@ -94,7 +94,7 @@ module optimization
     end if 
     threads = min (max (1, threads) , threads_available) 
     call omp_set_num_threads(threads)                   
-    call print_note ("Particle swarm will use "//stri(threads)//" CPU threads", 3)                  
+    call print_note ("Particle swarm will use "//stri(threads)//" of "//stri(threads_available)//" CPU threads", 3)                  
 
     !$omp parallel default(shared)
     call xfoil_init()                    ! Allocate private memory for xfoil on each thread 

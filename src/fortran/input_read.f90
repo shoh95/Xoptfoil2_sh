@@ -1,6 +1,6 @@
 ! MIT License
 ! Copyright (C) 2017-2019 Daniel Prosser
-! Copyright (c) 2022-2024 Jochen Guenzel
+! Copyright (c) 2022-2025 Jochen Guenzel
  
 module input_read
 
@@ -425,10 +425,14 @@ module input_read
       opt_type = op%optimization_type
  
 
-      if (op%re%number <= 0.d0) &
+      if (op%re%number <= 0.d0) then
         call my_op_stop (i,op_points_spec, "reynolds must be > 0. Default value (re_default) could not be set")
         if (op%ma%number < 0.d0) &
         call my_op_stop (i,op_points_spec, "mach must be >= 0.")
+      else if (op%re%number >= 1.d8) then 
+        call my_stop ("reynolds number must be < 1e8")
+      end if 
+      
       if (op%ma%number >= 1.d0) &
         call my_op_stop (i,op_points_spec, "mach must be < 1.")
       if (opt_type /= 'min-drag' .and. &
@@ -1304,14 +1308,14 @@ module input_read
     integer, intent(in)      :: iunit
     type(xfoil_options_type), intent(out)    :: xfoil_options
 
-    logical :: viscous_mode, silent_mode, fix_unconverged, reinitialize, show_details
+    logical :: viscous_mode, silent_mode, fix_unconverged, reinitialize, show_details, detect_bubble
     integer :: bl_maxit
     double precision :: ncrit, xtript, xtripb, vaccel
     integer :: iostat1
 
     namelist /xfoil_run_options/ ncrit, xtript, xtripb, viscous_mode,            &
-    silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize, show_details
-
+                                 silent_mode, bl_maxit, vaccel, fix_unconverged, reinitialize, & 
+                                 show_details, detect_bubble
 
     ! Set default xfoil aerodynamics
 
@@ -1320,12 +1324,13 @@ module input_read
     xtripb = 1.d0
     viscous_mode = .true.
     silent_mode = .true.
-    bl_maxit = 50             ! reduced to 50 as above the potential result is rarely usable..
-    vaccel = 0.005d0          ! the original value of 0.01 leads to too many non convergences at 
-                              !   higher lift --> reduced 
+    bl_maxit = 50                   ! reduced to 50 as above the potential result is rarely usable..
+    vaccel = 0.005d0                ! the original value of 0.01 leads to too many non convergences at 
+                                    !   higher lift --> reduced 
     fix_unconverged = .true.
-    reinitialize = .false.    ! as run_xfoil is improved, this will speed up the xfoil calcs
-    show_details = .false.    ! show success info during op point calculation
+    reinitialize = .false.          ! as run_xfoil is improved, this will speed up the xfoil calcs
+    show_details = .false.          ! show success info during op point calculation
+    detect_bubble = .false.         ! detect bubbles in the boundary layer
 
     ! Read xfoil options
 
@@ -1359,8 +1364,11 @@ module input_read
     xfoil_options%exit_if_unconverged = .false.
     xfoil_options%exit_if_clmax = .false.
     xfoil_options%detect_outlier = .true.
+    xfoil_options%repair_polar_outlier = .false.
     xfoil_options%reinitialize = reinitialize 
     xfoil_options%show_details = show_details
+    xfoil_options%detect_bubble = detect_bubble
+
   end subroutine read_xfoil_options_inputs
 
 
@@ -1471,6 +1479,8 @@ module input_read
           call my_stop ("polar_generation: mach number must be >= 0.0")
         else if (polar_mach(i) >= 1d0) then 
           call my_stop ("polar_generation: mach number must be <= 1.0")
+        else if (polar_reynolds(i) >= 1.d8) then 
+          call my_stop ("polar_generation: reynolds number must be < 1e8")
         else 
           npolars = npolars + 1
         end if
@@ -1652,9 +1662,8 @@ module input_read
         i = i+1
 
       else
-        call print_error ("Unrecognized option "//args//".")
         call print_usage ()
-        stop 1
+        call my_stop ("Unrecognized option "//args//".")
       end if
 
       if (i > nargs) getting_args = .false.
@@ -1668,7 +1677,7 @@ module input_read
 
     !! returns  rund_mode from command line  
 
-    use commons,      only : MODE_AIRFOIL_OPIMIZER, MODE_NORMAL
+    use commons,      only : MODE_CHILD_PROCESS, MODE_NORMAL
 
     character(250)            :: arg
     character (:),allocatable :: args
@@ -1697,8 +1706,8 @@ module input_read
           call getarg(i+1, arg)
           arg = trim(arg) 
 
-          if (arg == "ao") then 
-            run_mode = MODE_AIRFOIL_OPIMIZER
+          if (arg == "child") then 
+            run_mode = MODE_CHILD_PROCESS
           end if 
         end if
         exit
@@ -1720,7 +1729,7 @@ module input_read
     use commons,            only : PGM_NAME
 
     print * 
-    print *, "Usage:  "//PGM_NAME//"  input_file  [OPTIONS]"
+    print *, "Usage:  xoptfoil2  input_file  [OPTIONS]"
     print *
     print *, "Options:"
     print *, "     -i input_file     Name of input file, '-i' can be omitted"
@@ -1730,7 +1739,7 @@ module input_read
     print *, "     -h                Show this text"
     print *
     print *, "Home: https://github.com/jxjo/"//PGM_NAME
-    print *, "      (c) 2019-2024 Jochen Guenzel"
+    print *, "      (c) 2019-2025 Jochen Guenzel"
     print *
 
   end subroutine print_usage

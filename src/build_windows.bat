@@ -1,10 +1,6 @@
 echo OFF
 
-set XOPTFOIL_VERSION=1.0.5
-
-echo:
-echo Build Xoptfoil2 %XOPTFOIL_VERSION% --------------------------
-echo:
+set XOPTFOIL_VERSION=1.0.10
 
 rem build and install directory 
 

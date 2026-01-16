@@ -1,6 +1,6 @@
 ! MIT License
 ! Copyright (C) 2017-2019 Daniel Prosser
-! Copyright (c) 2020-2024 Jochen Guenzel 
+! Copyright (c) 2020-2025 Jochen Guenzel 
 
 
 program main
@@ -83,7 +83,7 @@ program main
   logical                       :: wait_at_end
 
   !-------------------------------------------------------------------------------
-  
+   
   print *
   call print_colored (COLOR_FEATURE,' '//PGM_NAME)
   print *,'             The Airfoil Optimizer             '//trim(PACKAGE_VERSION)
@@ -94,9 +94,7 @@ program main
 
   ! get run_mode from command 
 
-  run_mode = run_mode_from_command_line ()
-
-  if (run_mode == MODE_AIRFOIL_OPIMIZER) then 
+  if (run_mode_from_command_line () == MODE_CHILD_PROCESS) then 
     call set_my_stop_to_stderr (.true.) 
   end if 
 

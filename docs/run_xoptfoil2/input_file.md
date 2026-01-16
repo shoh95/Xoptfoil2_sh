@@ -91,7 +91,6 @@ Using command line arguments can be useful when a row of optimization tasks shou
 
 
 Overview of all namelists with their parameters currently available. Only a short explanation is given for each parameter. 
-See [Input Reference](input_file.md) for more details. 
 
 {: .tip }
 Copy & Paste single parameters or complete namelists from here into your input file 
@@ -216,7 +215,7 @@ Copy & Paste single parameters or complete namelists from here into your input f
   convergence_profile = 'exhaustive'             ! either 'exhaustive' or 'quick' or 'quick_camb_thick'
 /
 
-&polar_generation                                ! options only for 'Worker'   
+&polar_generation                                ! options only for 'worker'   
   polar_reynolds   = 0                           ! list of reynolds like 100000, 200000, 600000
   polar_mach       = 0                           ! list of mach like 0.1, 0.2, 0.5
   type_of_polar    = 1                           ! either Type 1 or Type 2 polar 
@@ -236,3 +235,8 @@ Copy & Paste single parameters or complete namelists from here into your input f
 /
 ```
 {: .lh-tight }
+
+
+## Input Reference 
+
+Sorry - The reference still needs to be written.

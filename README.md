@@ -1,5 +1,3 @@
-
-
 ![XO2](docs/images/Xoptfoil2.png "Xoptfoil2")
 
 # Xoptfoil2 - The Airfoil Optimizer 
@@ -39,12 +37,24 @@ Xoptfoil2 was already used to develop some [high end airfoil families](https://g
   - bump detection for Hicks Henne shape type 
   - max curvature at trailing edge 
 * Rerun optimization with refined targets 
-* 'Worker' tool for automization of typical tasks 
+* Worker tool for automatization of typical tasks 
 
 
 ## Documentation 
 
 For usage and background information on airfoil optimization please visit the [Xoptfoil2 documentation]( https://jxjo.github.io/Xoptfoil2)
+
+## UI - AirfoilEditor
+
+The [AirfoilEditor](https://github.com/jxjo/AirfoilEditor) provides a visual interface for airfoil optimization using Xoptfoil2 as its engine.
+
+In the 'Optimization Mode' of AirfoilEditor you can:
+- Define optimization cases equivalent to Xoptfoil2 input files
+- Graphically define operating points directly in the polar diagram 
+- Execute optimizations with Xoptfoil2 running in the background
+
+![AirfoilEditor Optimization Run](docs/images/AE_optimization.png)
+
 
 
 ## Installation
@@ -55,7 +65,7 @@ The actual version of Xoptfoil2 can be found in the [Releases section](https://g
 
 #### Windows
 
-Download the Windows zip-file and extract it in any subdirectory - maybe for the first tries directly on the Windows Desktop. Xoptfoil2 is a very lightweight installation, which doesn't install any other artefacts on your PC.
+Download the Windows zip-file and extract it in any subdirectory - maybe for the first tries directly on the Windows Desktop. Xoptfoil2 is a very lightweight installation, which doesn't install any other artifacts on your PC.
 
 #### Linux (Debian based) 
 
@@ -66,21 +76,40 @@ sudo apt install gfortran
 sudo apt install cmake
 ```
 
-In the `src` folder you'll find the script `build_linux.sh` for compilation. Run this script and Xoptfoil2 should be ready to go.
+In the `src` folder you'll find the script `build_linux.sh` for compilation. Run the script 
+
+```
+bash build_linux.sh
+```
+
+and Xoptfoil2 should be ready to go.
+
+By copying `xoptfoil2`and `worker` to '/usr/local/bin' it can be accessed in every directory. Sometimes it is needed to mark the files as executables with 
+
+```
+sudo chmod +x xoptfoil2
+sudo chmod +x worker
+```
 
 
 ## Examples
 
 There are a few examples ready-to-run in the folder `examples`. As a first "Hello World" to optimization the example based on the SD7003 airfoil is well suited. Just double click on `make.bat` (Windows) or run `make.sh` (Linux) and the optimization will start.
 
-You'll find much more informationen about this example in the [Xoptfoil2 documentation]( https://jxjo.github.io/Xoptfoil2)
+You'll find much more information about this example in the [Xoptfoil2 documentation]( https://jxjo.github.io/Xoptfoil2)
 
 
 ## About the project
 
 Xoptfoil2 is the successor of the awesome [Xoptfoil by Daniel Prosser](https://github.com/montagdude/Xoptfoil)  and [Xoptfoil-JX](https://github.com/jxjo/Xoptfoil-JX/tree/master), a branch of the original Xoptfoil. The objectives of this project are:
 - building a robust and reliable airfoil optimization engine supporting future extensions in various aspects. 
-- an airfoil optimizer GUI, which allows to define, visualize and analyze an optimization task - WiP
+- an airfoil optimizer UI, which allows to define, visualize and analyze an optimization task.
+Have a look at the [AirfoilEditor project](https://github.com/jxjo/AirfoilEditor).
+
+
+### Changelog
+
+See [CHANGELOG.md](CHANGELOG.md) for history of changes.
 
 ### Have fun! 
 

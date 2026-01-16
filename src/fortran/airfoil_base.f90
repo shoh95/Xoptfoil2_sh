@@ -1,6 +1,6 @@
 ! MIT License
 ! Copyright (C) 2017-2019 Daniel Prosser
-! Copyright (c) 2024 Jochen Guenzel
+! Copyright (c) 2025 Jochen Guenzel
 
 module airfoil_base
 
@@ -295,7 +295,7 @@ contains
     integer ile
 
     if (.not. is_normalized_coord (foil)) then 
-        call my_stop ("split_foil: Leading edge isn't at 0,0")
+        call my_stop ("split_foil: LE isn't at 0,0 or TE isn't symmetrical at x=1")
     end if  
 
     !! build 2D spline 
