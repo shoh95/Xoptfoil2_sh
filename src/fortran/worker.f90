@@ -163,7 +163,7 @@ contains
 
     ! initialize polar definition structure 
 
-    call initialize_polars (auto_range, spec_cl, op_point_range, type_of_polar, xfoil_options%ncrit, &
+    call initialize_polars (auto_range, spec_cl, op_point_range, type_of_polar, xfoil_options, &
                             polar_reynolds, polar_mach, &
                             output_prefix, csv_format, polars, splitted)
 
@@ -270,7 +270,7 @@ contains
 
     ! initialize polar definition structure 
 
-    call initialize_polars_flapped (auto_range, spec_cl, op_point_range, type_of_polar, xfoil_options%ncrit, &
+    call initialize_polars_flapped (auto_range, spec_cl, op_point_range, type_of_polar, xfoil_options, &
                             polar_reynolds, polar_mach, flap_spec, flap_angle, polars, splitted)
 
     if (size(polars) > 0) then

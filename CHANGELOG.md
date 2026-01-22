@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+
+## v 1.0.11 beta 
+
+This is a just a maintenance release 
+
+### Added 
+
+- Support of forced transition in polar generation. 
+
+
 ## v 1.0.10 
 
 This is a just a maintenance release 
