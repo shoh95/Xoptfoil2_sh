@@ -3,7 +3,7 @@
 All notable changes to this project will be documented in this file.
 
 
-## v 1.0.11 beta 
+## v 1.0.11 
 
 This is a just a maintenance release 
 
