@@ -26,6 +26,8 @@ module polar_operations
     type(re_type)                   :: re              ! Re number of this polar (re*sqrt(cl) if Type2)
     type(re_type)                   :: ma              ! Ma number of this polar (mach*sqrt(cl) if Type2)
     double precision                :: ncrit           ! ncrit of polar
+    double precision                :: xtript          ! forced transition point top side
+    double precision                :: xtripb          ! forced transition point bottom side
     logical                         :: auto_range      ! op point range will be automatically determined
     logical                         :: spec_cl         ! base value of polar either cl or alpha
     double precision                :: start_value     ! polar starting from ...
@@ -215,6 +217,8 @@ contains
         polar%re        = polars(ip)%re
         polar%ma        = polars(ip)%ma
         polar%ncrit     = polars(ip)%ncrit
+        polar%xtript      = polars(ip)%xtript
+        polar%xtripb      = polars(ip)%xtripb
         polar%spec_cl   = polars(ip)%spec_cl
         polar%flap_angle = 0d0
 
@@ -438,6 +442,8 @@ contains
       polar%re          = polars(ip)%re
       polar%ma          = polars(ip)%ma
       polar%ncrit       = polars(ip)%ncrit
+      polar%xtript      = polars(ip)%xtript
+      polar%xtripb      = polars(ip)%xtripb
       polar%spec_cl     = polars(ip)%spec_cl
       polar%x_flap      = polars(ip)%x_flap
       polar%y_flap      = polars(ip)%y_flap
@@ -461,7 +467,8 @@ contains
 
 
 
-  subroutine initialize_polars  (auto_range, spec_cl_in, op_point_range, type_of_polar, ncrit, &
+  subroutine initialize_polars  (auto_range, spec_cl_in, op_point_range, type_of_polar, &
+                                 xfoil_options, &
                                  polar_reynolds, polar_mach, &
                                  output_prefix, csv_format, polars, splitted) 
 
@@ -478,7 +485,7 @@ contains
     logical,          intent(in) :: auto_range                     ! op point range will be automatically determined 
     logical,          intent(in) :: spec_cl_in 
     integer,          intent(in) :: type_of_polar                  ! 1 or 2 
-    double precision, intent(in) :: ncrit 
+    type (xfoil_options_type), intent(in) :: xfoil_options
     double precision, intent(in) :: polar_reynolds (:)             ! 40000, 70000, 100000
     double precision, intent(in) :: polar_mach (:)                 ! 0.0, 0.1, 0.0 
     double precision, intent(in) :: op_point_range (:)             ! -1.0, 10.0, 0.5
@@ -535,7 +542,10 @@ contains
     polars%spec_cl         = spec_cl
     polars%ma%type         = 1                       ! only Type 1 supported 
     polars%re%type         = type_of_polar
-    polars%ncrit           = ncrit
+    polars%ncrit           = xfoil_options%ncrit
+    polars%xtript          = xfoil_options%xtript 
+    polars%xtripb          = xfoil_options%xtripb
+
     polars%flap_angle      = 0d0                     ! only used in polars_flapped 
 
     if (splitted) then 
@@ -611,9 +621,10 @@ contains
 
 
 
-  subroutine initialize_polars_flapped  (auto_range, spec_cl_in, op_point_range, type_of_polar, ncrit, &
+  subroutine initialize_polars_flapped  (auto_range, spec_cl_in, op_point_range, type_of_polar, &
+                                 xfoil_options, &
                                  polar_reynolds, polar_mach, flap_spec, flap_angle, polars, splitted) 
-
+    
     !----------------------------------------------------------------------------
     !! Init polar data structure in this module
     !!   - re_default for polar definitions with no Reynolds
@@ -627,7 +638,7 @@ contains
     logical,          intent(in) :: auto_range                     ! op point range will be automatically determined 
     logical,          intent(in) :: spec_cl_in 
     integer,          intent(in) :: type_of_polar                  ! 1 or 2 
-    double precision, intent(in) :: ncrit 
+    type(xfoil_options_type), intent(in) :: xfoil_options
     double precision, intent(in) :: polar_reynolds (:)             ! 40000, 70000, 100000
     double precision, intent(in) :: polar_mach (:)                 ! 0.0, 0.1, 0.0 
     type(flap_spec_type), intent(in) :: flap_spec  
@@ -686,7 +697,9 @@ contains
     polars%spec_cl         = spec_cl
     polars%ma%type         = 1                       ! only Type 1 supported 
     polars%re%type         = type_of_polar
-    polars%ncrit           = ncrit
+    polars%ncrit           = xfoil_options%ncrit
+    polars%xtript          = xfoil_options%xtript
+    polars%xtripb          = xfoil_options%xtripb
     polars%x_flap          = flap_spec%x_flap
     polars%y_flap          = flap_spec%y_flap
     polars%y_flap_spec     = flap_spec%y_flap_spec
@@ -1035,7 +1048,7 @@ contains
       write (out_unit,'(A)') " 2 2 Reynolds number ~ 1/sqrt(CL)   Mach number ~ 1/sqrt(CL)"
     end if 
     write (out_unit,*) 
-    write (out_unit,'(A)') " xtrf =   1.000 (top)        1.000 (bottom)"
+    write (out_unit,'(A,F5.3,A,F5.3,A)') " xtrf =   ",polar%xtript,' (top)        ',polar%xtripb, ' (bottom)'
     write (out_unit,'(A,F7.3,5X,A,F9.3,A,5X,A,F7.3 )')                     &
                       " Mach = ",polar%ma%number,'Re = ',(polar%re%number/1.d6),' e 6','Ncrit = ',polar%ncrit
     write (out_unit,*)
@@ -1126,7 +1139,7 @@ contains
 
 
 
-  function flapped_suffix (polar) result (suffix) 
+  function polar_name_flapped_suffix (polar) result (suffix) 
      
     !-----------------------------------------------------------------------------
     !! returns polar name extension being flapped like 
@@ -1176,7 +1189,36 @@ contains
 
   end function 
 
+
+  function polar_name_xtrip_suffix (polar) result (suffix) 
+     
+    !-----------------------------------------------------------------------------
+    !! returns polar name extension having forced transition like
+    !        '_xtript77_xtripb20' for non default values
+    !-----------------------------------------------------------------------------
+    
+    type(polar_type), intent(in)        :: polar
+    character(:), allocatable           :: suffix
+    character (20)                      :: as_string
+
+    suffix = ''
+
+    if (polar%xtript /= 1d0) then 
+      write (as_string,'(I3)') int (polar%xtript * 100d0 + 0.5d0)
+      suffix = '_Trt' // trim(adjustl(as_string))
+    end if 
+
+    if (polar%xtripb /= 1d0) then 
+      write (as_string,'(I3)') int (polar%xtripb * 100d0 + 0.5d0)
+      suffix = suffix // '_Trb' // trim(adjustl(as_string))
+    end if
+
+  end function 
+
   
+
+
+
   function  get_polar_name (polar) result (polar_name)
 
     !-----------------------------------------------------------------------------
@@ -1214,8 +1256,12 @@ contains
     end if
     polar_name  = polar_name  // trim(as_string)
 
+    if (polar%xtript /= 1d0 .or. polar%xtripb /= 1d0) then 
+      polar_name  = polar_name  // polar_name_xtrip_suffix (polar)
+    end if
+
     if (polar%flap_angle /= 0d0) then 
-      polar_name  = polar_name  // flapped_suffix (polar)
+      polar_name  = polar_name  // polar_name_flapped_suffix (polar)
     end if 
 
   end function 
